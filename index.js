@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const {getTalker, setTalker} = require('./fs-json');
 
 const app = express();
 app.use(bodyParser.json());
@@ -11,6 +12,11 @@ const PORT = '3000';
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });
+
+app.get('/talker', async (req,res) => {
+  const showTalker = await getTalker();
+  res.status(200).json(showTalker);
+})
 
 app.listen(PORT, () => {
   console.log('Online');
