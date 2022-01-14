@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-const { getTalker, setTalker } = require('./fs-json');
+const { getTalker } = require('./fs-json');
 const { isValidPassword, isValidEmail } = require('./middlewares/validations');
 const {
   validateToken,
@@ -29,8 +29,8 @@ app.get('/talker', async (req, res) => {
 
 app.get('/talker/:id', async (req, res) => {
   const showTalker = await getTalker();
-
-  const findTalker = showTalker.find(({ id }) => id === req.params.id);
+  const { id } = req.params;
+  const findTalker = showTalker.find((talker) => talker.id === Number(id));
 
   if (!findTalker) {
  return res
@@ -38,7 +38,7 @@ app.get('/talker/:id', async (req, res) => {
       .json({ message: 'Pessoa palestrante não encontrada' }); 
 }
 
-  return res.status(202).json(findTalker);
+  return res.status(200).json(findTalker);
 });
 
 app.post('/login', isValidEmail, isValidPassword, async (req, res) =>
@@ -58,9 +58,9 @@ app.post(
 
     content.push({ id: lastId + 1, name, age, talk });
     const newTalker = await content[content.length - 1];
-    setTalker(newTalker);
-    // const getTalkers = JSON.stringify(content);
-    // fs.writeFile('./talker.json', getTalkers);
+    
+     const getTalkers = JSON.stringify(content);
+     fs.writeFile('./talker.json', getTalkers);
 
     return res.status(201).json(newTalker);
   },
