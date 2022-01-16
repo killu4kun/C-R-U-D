@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const fs = require('fs');
+const fs = require('fs').promises;
 const { getTalker } = require('./fs-json');
 const { isValidPassword, isValidEmail } = require('./middlewares/validations');
 const {
@@ -52,14 +52,18 @@ app.post(
   isValidTalk,
   isValidRateAndWatchedAt,
   async (req, res) => {
-    const content = JSON.parse(await fs.readfile('./talker.json', 'utf-8'));
+    const content = JSON.parse(await fs.readFile('./talker.json', 'utf-8'));
     const { name, age, talk } = req.body;
     const lastId = content[content.length - 1].id;
 
-    content.push({ id: lastId + 1, name, age, talk });
-    const newTalker = await content[content.length - 1];
+    const newTalker = {
+      id: lastId + 1,
+      name,
+      age,
+      talk, 
+    };
     
-     const getTalkers = JSON.stringify(content);
+     const getTalkers = JSON.stringify([...content, newTalker]);
      fs.writeFile('./talker.json', getTalkers);
 
     return res.status(201).json(newTalker);
