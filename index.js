@@ -14,6 +14,7 @@ const {
 const app = express();
 app.use(bodyParser.json());
 
+const TALKER_SEED = './talker.json';
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
 
@@ -52,7 +53,7 @@ app.post(
   isValidTalk,
   isValidRateAndWatchedAt,
   async (req, res) => {
-    const content = JSON.parse(await fs.readFile('./talker.json', 'utf-8'));
+    const content = JSON.parse(await fs.readFile(TALKER_SEED, 'utf-8'));
     const { name, age, talk } = req.body;
     const lastId = content[content.length - 1].id;
 
@@ -64,7 +65,7 @@ app.post(
     };
     
      const getTalkers = JSON.stringify([...content, newTalker]);
-     fs.writeFile('./talker.json', getTalkers);
+     fs.writeFile(TALKER_SEED, getTalkers);
 
     return res.status(201).json(newTalker);
   },
@@ -77,7 +78,7 @@ isValidAge,
 isValidTalk,
 isValidRateAndWatchedAt,
 async (req, res) => {
-  const content = JSON.parse(await fs.readFile('./talker.json', 'utf-8'));
+  const content = JSON.parse(await fs.readFile(TALKER_SEED, 'utf-8'));
   const { id } = req.params;
   const talkerIndex = content.findIndex((talker) => talker.id === parseInt(id, 10));
   const { name, age, talk } = req.body;
@@ -92,10 +93,21 @@ async (req, res) => {
     },
   };
   const talkers = JSON.stringify(content);
-  await fs.writeFile('./talker.json', talkers);
+  await fs.writeFile(TALKER_SEED, talkers);
   
   return res.status(200).json(content[talkerIndex]);
 });
+
+app.delete('/talker/:id', validateToken, async (req, res) => {
+  const content = JSON.parse(await fs.readFile(TALKER_SEED, 'utf-8'));
+  const { id } = req.params;
+  const talkerIndex = content.findIndex((talker) => talker.id === parseInt(id, 10));
+  content.splice(talkerIndex, 1);
+  const talkers = JSON.stringify(content);
+  await fs.writeFile('./talker.json', talkers);
+  return res.status(204).json({ message: 'Pessoa palestrante removida' });
+});
+
 app.listen(PORT, () => {
   console.log('Online');
 });
