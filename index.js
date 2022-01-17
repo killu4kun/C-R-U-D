@@ -95,6 +95,7 @@ isValidRateAndWatchedAt,
 async (req, res) => {
   const content = JSON.parse(await fs.readFile(TALKER_SEED, 'utf-8'));
   const { id } = req.params;
+  console.log(id);
   const talkerIndex = content.findIndex((talker) => talker.id === parseInt(id, 10));
   const { name, age, talk } = req.body;
   const { rate, watchedAt } = talk;
@@ -109,7 +110,6 @@ async (req, res) => {
   };
   const talkers = JSON.stringify(content);
   await fs.writeFile(TALKER_SEED, talkers);
-  
   return res.status(200).json(content[talkerIndex]);
 });
 
